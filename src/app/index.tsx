@@ -1,27 +1,40 @@
-import { CategoryButton } from '@/components/category-button';
-import { Header } from '@/components/header';
-import { View, FlatList, SectionList, Text } from 'react-native';
-import { Link } from 'expo-router';
+import { CategoryButton } from '@/components/category-button'
+import { Header } from '@/components/header'
+import { View, FlatList, SectionList, Text } from 'react-native'
+import { Link } from 'expo-router'
 
-import { CATEGORIES, MENU } from '@/utils/data/products';
-import { useState, useRef } from 'react';
-import { Product } from '@/components/product';
+import { CATEGORIES, MENU } from '@/utils/data/products'
+import { useState, useRef } from 'react'
+import { Product } from '@/components/product'
+import { useCartStore } from '@/stores/cart-store'
 
 export default function Home() {
-  const [categorie, setCategories] = useState<string>(CATEGORIES[0]);
-  const sectionListRef = useRef<SectionList>(null);
+  const cartStore = useCartStore()
+  const [categorie, setCategories] = useState<string>(CATEGORIES[0])
+  const sectionListRef = useRef<SectionList>(null)
+
+  const cartQuantityItems = cartStore.products.reduce(
+    (acc, product) => acc + product.quantity,
+    0
+  )
 
   const handleCategorieSelected = (selectedCategorie: string) => {
-    setCategories(selectedCategorie);
-    const sectionIndex = CATEGORIES.findIndex((category) => category === selectedCategorie);
+    setCategories(selectedCategorie)
+    const sectionIndex = CATEGORIES.findIndex(
+      (category) => category === selectedCategorie
+    )
     if (sectionListRef.current) {
-      sectionListRef.current?.scrollToLocation({ animated: true, sectionIndex, itemIndex: 0 });
+      sectionListRef.current?.scrollToLocation({
+        animated: true,
+        sectionIndex,
+        itemIndex: 0,
+      })
     }
-  };
+  }
 
   return (
     <View className="pt-8 flex-1">
-      <Header title="Faça seu pedido" cartCount={5} />
+      <Header title="Faça seu pedido" cartCount={cartQuantityItems} />
       <FlatList
         data={CATEGORIES}
         keyExtractor={(item) => item}
@@ -48,12 +61,14 @@ export default function Home() {
           </Link>
         )}
         renderSectionHeader={({ section: { title } }) => (
-          <Text className="text-white font-heading text-xl mt-8 mb-3">{title}</Text>
+          <Text className="text-white font-heading text-xl mt-8 mb-3">
+            {title}
+          </Text>
         )}
         className="flex-1 p-5"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}
       />
     </View>
-  );
+  )
 }
